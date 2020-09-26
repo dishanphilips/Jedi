@@ -28,7 +28,7 @@ namespace Jedi
         /// <summary>
         /// A helper property to get the id
         /// </summary>
-        public object Id { get { return _id ?? Type; } }
+        public object Id { get { return GetContractId(Type, _id); } }
 
         /// <summary>
         /// The true type of the contract
@@ -57,6 +57,11 @@ namespace Jedi
         /// This can be used to chain contracts
         /// </summary>
         public Contract From { get; private set; }
+
+        /// <summary>
+        /// Specifies interfaces associated with this type
+        /// </summary>
+        public Type[] Interfaces { get; private set; }
 
         /// <summary>
         /// If specified, this method will be used to instantiate the instance
@@ -92,13 +97,38 @@ namespace Jedi
 
         /// <summary>
         /// Only the Type needs to be set, the remaining can be set be using the builder
+        /// If an Id is provided, it will be how the contract wil be referenced
         /// </summary>
         /// <param name="container"></param>
         /// <param name="type"></param>
-        public Contract(DiContainer container, Type type)
+        /// <param name="id"></param>
+        public Contract(DiContainer container, Type type, object id = null)
         {
             _container = container;
             Type = type;
+            _id = id;
+        }
+
+        #endregion
+
+        #region ContractHelper
+
+        /// <summary>
+        /// Get the contract Id for a given type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static object GetContractId(Type type, object id)
+        {
+            if (id != null)
+            {
+                return id;
+            }
+            else
+            {
+                return type;
+            }
         }
 
         #endregion

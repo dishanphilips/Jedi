@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Jedi
 {
-    public class DiContainer
+    public partial class DiContainer
     {
         #region Properties
 
@@ -85,22 +85,6 @@ namespace Jedi
             _children.Add(child);
         }
 
-        #endregion
-
-        #region Contracts
-        public Contract GetContract(Type type, object id = null)
-        {
-            return null;
-        }
-        #endregion
-
-        #region Binding
-        #endregion
-
-        #region Resolve
-        #endregion
-
-        #region Inection
         #endregion
     }
 }

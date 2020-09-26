@@ -110,6 +110,17 @@ namespace Jedi
         }
 
         /// <summary>
+        /// Include all interfaces to the contract
+        /// This contract can also now be resolved using the interfaces
+        /// </summary>
+        /// <returns></returns>
+        public Contract AndInterfaces()
+        {
+            Interfaces = Type.GetInterfaces();
+            return this;
+        }
+
+        /// <summary>
         /// Include a method to instantiate an instance from
         /// </summary>
         /// <param name="method"></param>
