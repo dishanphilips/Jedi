@@ -89,7 +89,8 @@ namespace Jedi
 
         #region Contracts
         public Contract GetContract(Type type, object id = null)
-        { 
+        {
+            return null;
         }
         #endregion
 
