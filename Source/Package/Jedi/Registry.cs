@@ -13,6 +13,14 @@ namespace Jedi
         private static ConcurrentDictionary<Type, TypeInfo> _registry;
 
         /// <summary>
+        /// How injection occurrs
+        /// Reflection - Using regular reflection
+        /// Compiled - Set reflection methods are compiled into 
+        /// delegates which makes it as fast as a native method call.
+        /// </summary>
+        public static InjectMechanism InjectMechanism { get; set; } = InjectMechanism.Compiled;
+
+        /// <summary>
         /// Register a given type in the Jedi Registry 
         /// </summary>
         /// <param name="type"></param>

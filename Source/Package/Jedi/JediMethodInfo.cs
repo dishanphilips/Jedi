@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,32 +9,35 @@ namespace Jedi
 {
     public class JediMethodInfo
     {
+        /// <summary>
+        /// The method information
+        /// </summary>
         public MethodInfo Info { get; }
 
+        /// <summary>
+        /// The required parameters for the method
+        /// </summary>
         public ParameterInfo[] Parameters { get; }
 
-        public object Id { get; }
-
-        public object Optional { get; }
-
+        /// <summary>
+        /// Create Jedi Method for a given MethodInfo
+        /// </summary>
+        /// <param name="info"></param>
         public JediMethodInfo(MethodInfo info)
         {
-            // Get the attribute
-            InjectAttribute injectAttribute = info.GetCustomAttribute<InjectAttribute>();
-
             // Set the data
             Info = info;
             Parameters = Info.GetParameters();
-            Id = injectAttribute.Id;
-            Optional = injectAttribute.Optional;
         }
 
-        public void Invoke(object[] parameters)
-        { 
-        }
-
-        public async Task InvokeAsync(object[] parameters)
-        { 
+        /// <summary>
+        /// Invoke a method on a given target with the given targets
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="parameters"></param>
+        public void Invoke(object target, object[] parameters)
+        {
+            Info.Invoke(target, parameters);
         }
     }
 }
