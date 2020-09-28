@@ -12,10 +12,20 @@ namespace Jedi
 
         public ParameterInfo[] Parameters { get; }
 
+        public object Id { get; }
+
+        public object Optional { get; }
+
         public JediMethodInfo(MethodInfo info)
         {
+            // Get the attribute
+            InjectAttribute injectAttribute = info.GetCustomAttribute<InjectAttribute>();
+
+            // Set the data
             Info = info;
             Parameters = Info.GetParameters();
+            Id = injectAttribute.Id;
+            Optional = injectAttribute.Optional;
         }
 
         public void Invoke(object[] parameters)
