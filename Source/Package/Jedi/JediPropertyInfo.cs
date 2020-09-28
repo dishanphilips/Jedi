@@ -5,18 +5,17 @@ using System.Text;
 
 namespace Jedi
 {
-    public class JediFieldInfo
+    public class JediPropertyInfo
     {
-        public FieldInfo Info { get; }
+        public PropertyInfo Info { get; }
 
-        public JediFieldInfo(FieldInfo info)
+        public JediPropertyInfo(PropertyInfo info)
         {
             Info = info;
         }
 
         public void Set(object value)
         { 
-        
         }
     }
 }

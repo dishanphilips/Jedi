@@ -1,15 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Jedi
 {
     public class TypeInfo
     {
-        public Type Type { get;  }
+        /// <summary>
+        /// The underlying type
+        /// </summary>
+        public Type Type { get; }
 
-        public TypeInfo()
-        { 
+        /// <summary>
+        /// If the type is disposable
+        /// </summary>
+        bool IsDisposable { get; }
+
+        public JediCtrInfo Ctr { get; }
+
+        public JediFieldInfo[] Fields { get; }
+
+        public JediPropertyInfo[] Properties { get;  }
+
+        public JediMethodInfo[] Methods { get;  }
+
+        public TypeInfo(Type type)
+        {
+            Type = type;
+            IsDisposable = Type.GetInterfaces().Contains(typeof(IDisposable));
         }
     }
 }
