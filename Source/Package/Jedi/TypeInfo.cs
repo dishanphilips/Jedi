@@ -55,10 +55,13 @@ namespace Jedi
             IsDisposable = this.Type.GetInterfaces().Contains(typeof(IDisposable));
 
             // Set the constructor
-            ConstructorInfo[] ctrs = this.Type.GetConstructors(BindingFlag);
-            Ctr = new JediCtrInfo( ctrs.FirstOrDefault(c => c.GetCustomAttribute<InjectAttribute>() != null) ?? 
-                                    ctrs.First());
-
+            if (Type.IsPrimitive == false)
+            {
+                ConstructorInfo[] ctrs = this.Type.GetConstructors(BindingFlag);
+                Ctr = new JediCtrInfo(ctrs.FirstOrDefault(c => c.GetCustomAttribute<InjectAttribute>() != null) ??
+                                        ctrs.First());
+            }
+            
             // Loop through the type and all the base types
             Type currentType = Type;
             while (currentType != null)
