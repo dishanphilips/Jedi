@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Jedi
@@ -19,6 +20,11 @@ namespace Jedi
         /// Provided instance
         /// </summary>
         private bool _instanceProvided;
+
+        /// <summary>
+        /// A lock used to instantiate the instance
+        /// </summary>
+        private SemaphoreSlim _instantiationLock = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// The container this contract belongs to
@@ -71,7 +77,7 @@ namespace Jedi
         /// <summary>
         /// If specified this method will be used to instantiate the instance asynchronously
         /// </summary>
-        public Task<Func<object>> MethodAsync { get; private set; }
+        public Func<Task<object>> MethodAsync { get; private set; }
 
         /// <summary>
         /// Delegate for insantiated
@@ -87,7 +93,7 @@ namespace Jedi
         /// <summary>
         /// Delegate for async instantiated
         /// </summary>
-        public delegate void InsantiatedAsync();
+        public delegate Task InsantiatedAsync();
 
         /// <summary>
         /// Fired when Jedi instantiates the instance asynchronously

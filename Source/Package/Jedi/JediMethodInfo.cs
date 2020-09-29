@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -17,7 +18,7 @@ namespace Jedi
         /// <summary>
         /// The required parameters for the method
         /// </summary>
-        public ParameterInfo[] Parameters { get; }
+        public Type[] Parameters { get; }
 
         /// <summary>
         /// Create Jedi Method for a given MethodInfo
@@ -27,7 +28,9 @@ namespace Jedi
         {
             // Set the data
             Info = info;
-            Parameters = Info.GetParameters();
+            Parameters = Info.GetParameters().Select(p => p.ParameterType).ToArray();
+
+            // TODO : Precomile the method to a delegate
         }
 
         /// <summary>
