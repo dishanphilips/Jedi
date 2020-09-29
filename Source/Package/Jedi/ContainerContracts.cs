@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Jedi
 {
@@ -25,23 +25,26 @@ namespace Jedi
             {
                 contract = _contracts[contractId];
             }
-            // Check if there are any parents
-            else if (_parents != null)
+            else
             {
-                // Try to find the contract in the parent
-                foreach (DiContainer parent in _parents)
+                // Check if there are any parents
+                if (_parents != null)
                 {
-                    // Try to get the contract fromthe parent
-                    contract = parent.TryGetContract(type, id);
-
-                    // The contract was found, we can stop looping and return that contract
-                    if (contract != null)
+                    // Try to find the contract in the parent
+                    foreach (DiContainer parent in _parents)
                     {
-                        break;
+                        // Try to get the contract fromthe parent
+                        contract = parent.TryGetContract(type, id);
+
+                        // The contract was found, we can stop looping and return that contract
+                        if (contract != null)
+                        {
+                            break;
+                        }
                     }
                 }
             }
-
+            
             return contract;
         }
 
@@ -75,6 +78,73 @@ namespace Jedi
             {
                 throw new Exception($"Could not find a contract with the given type : {type.AssemblyQualifiedName}!");
             }
+        }
+
+        /// <summary>
+        /// Tries to find the contract in the container and the registered parents
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private IEnumerable<Contract> GetAllContractsFromContainerAndParents(Type type, object id = null)
+        {
+            // Create contract id
+            object contractId = Contract.GetContractId(type, id);
+
+            // Check if the contract exists in the container
+            if (_contracts.ContainsKey(contractId))
+            {
+                yield return _contracts[contractId];
+            }
+
+            // Check if the provided type is an interface
+            if (type.IsInterface)
+            {
+                // Traverse the contracts that implement this interface
+                foreach (Contract contract in _contracts.Values)
+                {
+                    if (contract.Interfaces.Contains(type))
+                    {
+                        yield return contract;
+                    }
+                }
+            }
+
+            // Check if there are any parents
+            if (_parents != null)
+            {
+                // Try to find the contract in the parent
+                foreach (DiContainer parent in _parents)
+                {
+                    // Try to get the contract fromthe parent
+                    foreach (Contract contract in parent.GetAllContractsFromContainerAndParents(type, id))
+                    {
+                        yield return contract;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gat all matching contracts
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IEnumerable<Contract> GetAllContracts(Type type, object id = null)
+        {
+            return GetAllContractsFromContainerAndParents(type, id);
+        }
+
+        /// <summary>
+        /// Get all contracts of a given T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IEnumerable<Contract> GetAllContracts<T>(object id = null)
+        {
+            return GetAllContracts(typeof(T), id);
         }
 
         #endregion
