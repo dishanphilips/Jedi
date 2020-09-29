@@ -85,6 +85,23 @@ namespace Jedi
             _children.Add(child);
         }
 
+        /// <summary>
+        /// Create a sub container with a given set of parent container
+        /// This will include the current container as a parent too
+        /// </summary>
+        /// <param name="parents"></param>
+        /// <returns></returns>
+        public DiContainer CreateSubContainer(params DiContainer[] parents)
+        {
+            // Create a container with this conainer as a parent
+            DiContainer subContainer = new DiContainer(this);
+
+            // Add other provided parents
+            subContainer.AddParents(parents);
+
+            return subContainer;
+        }
+
         #endregion
     }
 }
