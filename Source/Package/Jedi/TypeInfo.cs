@@ -55,7 +55,7 @@ namespace Jedi
             IsDisposable = this.Type.GetInterfaces().Contains(typeof(IDisposable));
 
             // Set the constructor
-            ConstructorInfo[] ctrs = this.Type.GetConstructors();
+            ConstructorInfo[] ctrs = this.Type.GetConstructors(BindingFlag);
             Ctr = new JediCtrInfo( ctrs.FirstOrDefault(c => c.GetCustomAttribute<InjectAttribute>() != null) ?? 
                                     ctrs.First());
 

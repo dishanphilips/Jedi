@@ -10,7 +10,7 @@ namespace Jedi
         /// <summary>
         /// A mapping of all known types of Jedi
         /// </summary>
-        private static ConcurrentDictionary<Type, TypeInfo> _registry;
+        private static ConcurrentDictionary<Type, TypeInfo> _registry = new ConcurrentDictionary<Type, TypeInfo>();
 
         /// <summary>
         /// How injection occurrs
@@ -19,6 +19,27 @@ namespace Jedi
         /// delegates which makes it as fast as a native method call.
         /// </summary>
         public static InjectMechanism InjectMechanism { get; set; } = InjectMechanism.Compiled;
+
+        /// <summary>
+        /// Register the C# primitive types by default
+        /// </summary>
+        static Registry()
+        {
+            Register(typeof(bool));
+            Register(typeof(byte));
+            Register(typeof(sbyte));
+            Register(typeof(char));
+            Register(typeof(decimal));
+            Register(typeof(double));
+            Register(typeof(float));
+            Register(typeof(int));
+            Register(typeof(uint));
+            Register(typeof(long));
+            Register(typeof(ulong));
+            Register(typeof(short));
+            Register(typeof(ushort));
+            Register(typeof(string));
+        }
 
         /// <summary>
         /// Register a given type in the Jedi Registry 

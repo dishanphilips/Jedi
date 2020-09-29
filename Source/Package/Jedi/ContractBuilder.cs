@@ -136,7 +136,7 @@ namespace Jedi
         /// </summary>
         /// <param name="methodAsync"></param>
         /// <returns></returns>
-        public Contract FromMethodAsync(Task<Func<object>> methodAsync)
+        public Contract FromMethodAsync(Func<Task<object>> methodAsync)
         {
             MethodAsync = methodAsync;
             return this;
