@@ -75,7 +75,7 @@ namespace Jedi
                 // Set the properties
                 foreach (PropertyInfo property in currentType.GetProperties(BindingFlag))
                 {
-                    if (property.GetCustomAttribute<InjectAttribute>() != null)
+                    if ( property.CanWrite && property.GetCustomAttribute<InjectAttribute>() != null)
                     {
                         Properties.Add(new JediPropertyInfo(property));
                     }
