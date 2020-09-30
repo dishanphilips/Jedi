@@ -5,6 +5,17 @@ using System.Reflection;
 
 namespace Jedi
 {
+    /// <summary>
+    /// The reason why compiled contstructors are preffered
+    /// |               Method |       Mean |     Error |    StdDev |     Median |  Gen 0 | Allocated |
+    /// |--------------------- |-----------:|----------:|----------:|-----------:|-------:|----------:|
+    /// |         ExplicitCtor |   2.591 ns | 0.0523 ns | 0.0489 ns |   2.582 ns | 0.0076 |      12 B |
+    /// |        WithActivator | 113.661 ns | 0.4652 ns | 0.3885 ns | 113.583 ns | 0.0074 |      12 B |
+    /// |       WithReflection | 369.719 ns | 6.9477 ns | 5.4243 ns | 367.856 ns | 0.0229 |      36 B |
+    /// | WithReflectionCached | 281.290 ns | 0.9358 ns | 0.7814 ns | 281.415 ns | 0.0148 |      24 B |
+    /// |           WithLambla |  17.391 ns | 0.0700 ns | 0.0621 ns |  17.373 ns | 0.0076 |      12 B |
+    /// |  WithCustomActivator |  27.644 ns | 0.6665 ns | 1.3155 ns |  27.039 ns | 0.0076 |      12 B |
+    /// </summary>
     public class JediCtrInfo
     {
         /// <summary>
