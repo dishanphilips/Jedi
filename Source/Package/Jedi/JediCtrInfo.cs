@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Jedi
@@ -17,6 +18,36 @@ namespace Jedi
         public Type[] Parameters { get; }
 
         /// <summary>
+        /// A constructor with 0 arguments
+        /// </summary>
+        public Func<object> Ctr0 { get;  }
+
+        /// <summary>
+        /// A constructor with 1 arugument
+        /// </summary>
+        public Func<object, object> Ctr1 { get; }
+
+        /// <summary>
+        /// A constructor with 2 arguments
+        /// </summary>
+        public Func<object, object, object> Ctr2 { get; }
+
+        /// <summary>
+        /// A constructor with 3 arguments
+        /// </summary>
+        public Func<object, object, object, object> Ctr3 { get; }
+
+        /// <summary>
+        /// A constructor with 4 arguments
+        /// </summary>
+        public Func<object, object, object, object, object> Ctr4 { get; }
+
+        /// <summary>
+        /// A constructor with 5 arguments
+        /// </summary>
+        public Func<object, object, object, object, object, object> Ctr5 { get; }
+
+        /// <summary>
         /// Construct a Jedi Ctr Info with a given Reflection Constructor Info
         /// </summary>
         /// <param name="info"></param>
@@ -25,7 +56,59 @@ namespace Jedi
             Info = info;
             Parameters = Info.GetParameters().Select(p => p.ParameterType).ToArray();
 
-            // TODO : Precomile the constructor to a delegate
+            // Compile the constructor if needed
+            if (Registry.InjectMechanism == InjectMechanism.Compiled)
+            {
+                switch (Parameters.Length)
+                {
+                    case 0:
+                        Ctr0 = Expression.Lambda<Func<object>>(
+                            Expression.New(Info, Array.Empty<ParameterExpression>())).Compile();
+                        break;
+                    case 1:
+                        Ctr1 = Expression.Lambda<Func<object, object>>(
+                            Expression.New(Info, new[] { 
+                                Expression.Parameter(typeof(object)) 
+                            })).Compile();
+                        break;
+                    case 2:
+                        Ctr2 = Expression.Lambda<Func<object, object, object>>(
+                            Expression.New(Info, new[] {
+                                Expression.Parameter(typeof(object)),
+                                Expression.Parameter(typeof(object)),
+                            })).Compile();
+                        break;
+                    case 3:
+                        Ctr3 = Expression.Lambda<Func<object, object, object, object>>(
+                            Expression.New(Info, new[] {
+                                Expression.Parameter(typeof(object)),
+                                Expression.Parameter(typeof(object)),
+                                Expression.Parameter(typeof(object)),
+                            })).Compile();
+                        break;
+                    case 4:
+                        Ctr4 = Expression.Lambda<Func<object, object, object, object, object>>(
+                            Expression.New(Info, new[] {
+                                Expression.Parameter(typeof(object)),
+                                Expression.Parameter(typeof(object)),
+                                Expression.Parameter(typeof(object)),
+                                Expression.Parameter(typeof(object)),
+                            })).Compile();
+                        break;
+                    case 5:
+                        Ctr5 = Expression.Lambda<Func<object, object, object, object, object, object>>(
+                            Expression.New(Info, new[] {
+                                Expression.Parameter(typeof(object)),
+                                Expression.Parameter(typeof(object)),
+                                Expression.Parameter(typeof(object)),
+                                Expression.Parameter(typeof(object)),
+                                Expression.Parameter(typeof(object)),
+                            })).Compile();
+                        break;
+                    default:
+                        throw new Exception("Only a  maximum of 5 parameters are currently supported!");
+                }
+            }
         }
 
         /// <summary>
@@ -35,7 +118,31 @@ namespace Jedi
         /// <returns></returns>
         public object Spawn(object[] parameters)
         {
-            return Info.Invoke(parameters);
+            switch (Registry.InjectMechanism)
+            {
+                case InjectMechanism.Compiled:
+                    switch (Parameters.Length)
+                    {
+                        case 0:
+                            return Ctr0();
+                        case 1:
+                            return Ctr1(parameters[0]);
+                        case 2:
+                            return Ctr2(parameters[0], parameters[1]);
+                        case 3:
+                            return Ctr3(parameters[0], parameters[1], parameters[2]);
+                        case 4:
+                            return Ctr4(parameters[0], parameters[1], parameters[2], parameters[3]);
+                        case 5:
+                            return Ctr5(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4]);
+                        default:
+                            throw new Exception("Only a maximum of 5 parameters are currently supported!");
+                    }
+                case InjectMechanism.Reflection:
+                    return Info.Invoke(parameters);
+                default:
+                    throw new Exception("The constructor was not found!");
+            }
         }
     }
 }
