@@ -1,0 +1,13 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/Source/NetCore/.vs/Jedi/v16
+/Source/NetCore/Jedi/.vs/Jedi
+/Source/NetCore/Jedi/bin/Debug/netcoreapp3.1
+/Source/NetCore/Jedi/obj
+/Source/NetCore/Tests/obj/Debug/netcoreapp3.1
+/Source/NetCore/Tests/obj
+/Source/NetCore/Tests/bin/Debug/netcoreapp3.1
+/Source/NetCore/.vs/Jedi/DesignTimeBuild

@@ -1,6 +1,9 @@
 using Jedi;
 using NUnit.Framework;
 
-public class ContainerBindingTests
-{ 
+namespace Jedi.Tests
+{
+    public class ContainerBindingTests
+    {
+    }
 }

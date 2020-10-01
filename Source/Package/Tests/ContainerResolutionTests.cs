@@ -1,6 +1,9 @@
 using Jedi;
 using NUnit.Framework;
 
-public class ContainerResoltionTests
+namespace Jedi.Tests
 {
+    public class ContainerResoltionTests
+    {
+    }
 }

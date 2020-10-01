@@ -1,7 +1,7 @@
 ﻿using Jedi;
 using NUnit.Framework;
 
-namespace Tests
+namespace Jedi.Tests
 {
     public class ResgistryTests
     {

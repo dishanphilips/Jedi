@@ -1,6 +1,9 @@
 using Jedi;
 using NUnit.Framework;
 
-public class InjectAttributeTests
+namespace Jedi.Tests
 {
+    public class InjectAttributeTests
+    {
+    }
 }
