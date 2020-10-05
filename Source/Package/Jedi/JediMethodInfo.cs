@@ -23,32 +23,7 @@ namespace Jedi
         /// <summary>
         /// Compiled set action for 0 argument method
         /// </summary>
-        public Action<object> Method0 { get; }
-
-        /// <summary>
-        /// Compiled set action for 1 argument method
-        /// </summary>
-        public Action<object, object> Method1 { get; }
-
-        /// <summary>
-        /// Compiled set action for 2 argument method
-        /// </summary>
-        public Action<object, object, object> Method2 { get; }
-
-        /// <summary>
-        /// Compiled set action for 3 argument method
-        /// </summary>
-        public Action<object, object, object, object> Method3 { get; }
-
-        /// <summary>
-        /// Compiled set action for 4 argument method
-        /// </summary>
-        public Action<object, object, object, object, object> Method4 { get; }
-
-        /// <summary>
-        /// Compiled set action for 5 argument method
-        /// </summary>
-        public Action<object, object, object, object, object, object> Method5 { get; }
+        public Action<object, object[]> Method { get; }
 
         /// <summary>
         /// Create Jedi Method for a given MethodInfo
@@ -63,35 +38,52 @@ namespace Jedi
             // Compile the delegate if required
             if (Registry.InjectMechanism == InjectMechanism.Compiled)
             {
-                switch (Parameters.Length)
+                // Create the parameters required
+                ParameterExpression paramExpr = Expression.Parameter(typeof(object[]), "arguments");
+
+                // Create all the arguments and the conversions required
+                List<Expression> argExprs = new List<Expression>();
+                for (int parameterIndex = 0; parameterIndex < Parameters.Length; parameterIndex++)
                 {
-                    case 0:
-                        Method0 = Info.CreateDelegate(typeof(Action<object>)) 
-                            as Action<object>;
-                        break;
-                    case 1:
-                        Method1 = Info.CreateDelegate(typeof(Action<object, object>)) 
-                            as Action<object, object>;
-                        break;
-                    case 2:
-                        Method2 = Info.CreateDelegate(typeof(Action<object, object, object>)) 
-                            as Action<object, object, object>;
-                        break;
-                    case 3:
-                        Method3 = Info.CreateDelegate(typeof(Action<object, object, object, object>)) 
-                            as Action<object, object, object, object>;
-                        break;
-                    case 4:
-                        Method4 = Info.CreateDelegate(typeof(Action<object, object, object, object, object>)) 
-                            as Action<object, object, object, object, object>;
-                        break;
-                    case 5:
-                        Method5 = Info.CreateDelegate(typeof(Action<object, object, object, object, object, object>)) 
-                            as Action<object, object, object, object, object, object>;
-                        break;
-                    default:
-                        throw new Exception("Only a  maximum of 5 parameters are currently supported!");
+                    BinaryExpression indexedAcccess = Expression.ArrayIndex(paramExpr, Expression.Constant(parameterIndex));
+                    if (Parameters[parameterIndex].IsClass == false && Parameters[parameterIndex].IsInterface == false)
+                    {
+                        ParameterExpression localVariable = Expression.Variable(Parameters[parameterIndex], "localVariable");
+
+                        BlockExpression block = Expression.Block(new[] { localVariable },
+                                Expression.IfThenElse(Expression.Equal(indexedAcccess, Expression.Constant(null)),
+                                    Expression.Assign(localVariable, Expression.Default(Parameters[parameterIndex])),
+                                    Expression.Assign(localVariable, Expression.Convert(indexedAcccess, Parameters[parameterIndex]))
+                                ),
+                                localVariable
+                            );
+
+                        argExprs.Add(block);
+
+                    }
+                    else
+                    {
+                        argExprs.Add(Expression.Convert(indexedAcccess, Parameters[parameterIndex]));
+                    }
                 }
+
+                // Throw an excpetion if the number of parameters is incorrect
+                ConditionalExpression argLenExpr =
+                    Expression.IfThen(
+                        Expression.NotEqual(Expression.Property(paramExpr, typeof(object[]).GetProperty("Length")),
+                            Expression.Constant(Parameters.Length)),
+                        Expression.Throw(Expression.New(typeof(ArgumentException).GetConstructor(new Type[] { typeof(string) }),
+                            Expression.Constant("The length does not match parameters number")))
+                    );
+
+                // Create the new statement
+                MethodCallExpression callExpr = Expression.Call(Info, argExprs);
+
+                // Create the final constructor
+                BlockExpression callExprWithArgs = Expression.Block(argLenExpr, Expression.Convert(callExpr, typeof(object)));
+
+                // Compile the constructor
+                Method = Expression.Lambda(callExprWithArgs, new[] { paramExpr }).Compile() as Action<object, object[]>;
             }
         }
 
@@ -105,28 +97,7 @@ namespace Jedi
             switch (Registry.InjectMechanism)
             {
                 case InjectMechanism.Compiled:
-                    // Invoke the method according to the number of parameters
-                    switch(Parameters.Length)
-                    {
-                        case 0:
-                            Method0.Invoke(target);
-                            break;
-                        case 1:
-                            Method1.Invoke(target, parameters[0]);
-                            break;
-                        case 2:
-                            Method2.Invoke(target, parameters[0], parameters[1]);
-                            break;
-                        case 3:
-                            Method3.Invoke(target, parameters[0], parameters[1], parameters[2]);
-                            break;
-                        case 4:
-                            Method4.Invoke(target, parameters[0], parameters[1], parameters[2], parameters[3]);
-                            break;
-                        case 5:
-                            Method5.Invoke(target, parameters[0], parameters[1], parameters[2], parameters[3], parameters[4]);
-                            break;
-                    }
+                    Method.Invoke(target, parameters);
                     break;
                 case InjectMechanism.Reflection:
                     Info.Invoke(target, parameters);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -31,32 +32,7 @@ namespace Jedi
         /// <summary>
         /// A constructor with 0 arguments
         /// </summary>
-        public Func<object> Ctr0 { get;  }
-
-        /// <summary>
-        /// A constructor with 1 arugument
-        /// </summary>
-        public Func<object, object> Ctr1 { get; }
-
-        /// <summary>
-        /// A constructor with 2 arguments
-        /// </summary>
-        public Func<object, object, object> Ctr2 { get; }
-
-        /// <summary>
-        /// A constructor with 3 arguments
-        /// </summary>
-        public Func<object, object, object, object> Ctr3 { get; }
-
-        /// <summary>
-        /// A constructor with 4 arguments
-        /// </summary>
-        public Func<object, object, object, object, object> Ctr4 { get; }
-
-        /// <summary>
-        /// A constructor with 5 arguments
-        /// </summary>
-        public Func<object, object, object, object, object, object> Ctr5 { get; }
+        public Func<object[], object> Ctr { get;  }
 
         /// <summary>
         /// Construct a Jedi Ctr Info with a given Reflection Constructor Info
@@ -65,60 +41,57 @@ namespace Jedi
         public JediCtrInfo(ConstructorInfo info)
         {
             Info = info;
-            Parameters = Info.GetParameters().Select(p => p.ParameterType).ToArray();
-
+            Parameters = Info.GetParameters().Select(p => p.ParameterType).ToArray(); 
+            
             // Compile the constructor if needed
             if (Registry.InjectMechanism == InjectMechanism.Compiled)
             {
-                switch (Parameters.Length)
+                // Create the parameters required
+                ParameterExpression paramExpr = Expression.Parameter(typeof(object[]), "arguments");
+
+                // Create all the arguments and the conversions required
+                List<Expression> argExprs = new List<Expression>();
+                for (int parameterIndex = 0; parameterIndex < Parameters.Length; parameterIndex++)
                 {
-                    case 0:
-                        Ctr0 = Expression.Lambda<Func<object>>(
-                            Expression.New(Info, Array.Empty<ParameterExpression>())).Compile();
-                        break;
-                    case 1:
-                        Ctr1 = Expression.Lambda<Func<object, object>>(
-                            Expression.New(Info, new[] { 
-                                Expression.Parameter(typeof(object)) 
-                            })).Compile();
-                        break;
-                    case 2:
-                        Ctr2 = Expression.Lambda<Func<object, object, object>>(
-                            Expression.New(Info, new[] {
-                                Expression.Parameter(typeof(object)),
-                                Expression.Parameter(typeof(object)),
-                            })).Compile();
-                        break;
-                    case 3:
-                        Ctr3 = Expression.Lambda<Func<object, object, object, object>>(
-                            Expression.New(Info, new[] {
-                                Expression.Parameter(typeof(object)),
-                                Expression.Parameter(typeof(object)),
-                                Expression.Parameter(typeof(object)),
-                            })).Compile();
-                        break;
-                    case 4:
-                        Ctr4 = Expression.Lambda<Func<object, object, object, object, object>>(
-                            Expression.New(Info, new[] {
-                                Expression.Parameter(typeof(object)),
-                                Expression.Parameter(typeof(object)),
-                                Expression.Parameter(typeof(object)),
-                                Expression.Parameter(typeof(object)),
-                            })).Compile();
-                        break;
-                    case 5:
-                        Ctr5 = Expression.Lambda<Func<object, object, object, object, object, object>>(
-                            Expression.New(Info, new[] {
-                                Expression.Parameter(typeof(object)),
-                                Expression.Parameter(typeof(object)),
-                                Expression.Parameter(typeof(object)),
-                                Expression.Parameter(typeof(object)),
-                                Expression.Parameter(typeof(object)),
-                            })).Compile();
-                        break;
-                    default:
-                        throw new Exception("Only a  maximum of 5 parameters are currently supported!");
+                    BinaryExpression indexedAcccess = Expression.ArrayIndex(paramExpr, Expression.Constant(parameterIndex));
+                    if (Parameters[parameterIndex].IsClass == false && Parameters[parameterIndex].IsInterface == false)
+                    {
+                        ParameterExpression localVariable = Expression.Variable(Parameters[parameterIndex], "localVariable");
+
+                        BlockExpression block = Expression.Block(new[] { localVariable },
+                                Expression.IfThenElse(Expression.Equal(indexedAcccess, Expression.Constant(null)),
+                                    Expression.Assign(localVariable, Expression.Default(Parameters[parameterIndex])),
+                                    Expression.Assign(localVariable, Expression.Convert(indexedAcccess, Parameters[parameterIndex]))
+                                ),
+                                localVariable
+                            );
+
+                        argExprs.Add(block);
+
+                    }
+                    else
+                    {
+                        argExprs.Add(Expression.Convert(indexedAcccess, Parameters[parameterIndex]));
+                    }
                 }
+
+                // Throw an excpetion if the number of parameters is incorrect
+                ConditionalExpression argLenExpr = 
+                    Expression.IfThen(
+                        Expression.NotEqual(Expression.Property(paramExpr, typeof(object[]).GetProperty("Length")), 
+                        Expression.Constant(Parameters.Length)),
+                        Expression.Throw(Expression.New(typeof(ArgumentException).GetConstructor(new Type[] { typeof(string) }), 
+                        Expression.Constant("The length does not match parameters number")))
+                    );
+
+                // Create the new statement
+                NewExpression newExpr = Expression.New(Info, argExprs);
+
+                // Create the final constructor
+                BlockExpression ctrExprWithArgs = Expression.Block(argLenExpr, Expression.Convert(newExpr, typeof(object)));
+
+                // Compile the constructor
+                Ctr = Expression.Lambda(ctrExprWithArgs, new[] { paramExpr }).Compile() as Func<object[], object>;
             }
         }
 
@@ -132,23 +105,7 @@ namespace Jedi
             switch (Registry.InjectMechanism)
             {
                 case InjectMechanism.Compiled:
-                    switch (Parameters.Length)
-                    {
-                        case 0:
-                            return Ctr0();
-                        case 1:
-                            return Ctr1(parameters[0]);
-                        case 2:
-                            return Ctr2(parameters[0], parameters[1]);
-                        case 3:
-                            return Ctr3(parameters[0], parameters[1], parameters[2]);
-                        case 4:
-                            return Ctr4(parameters[0], parameters[1], parameters[2], parameters[3]);
-                        case 5:
-                            return Ctr5(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4]);
-                        default:
-                            throw new Exception("Only a maximum of 5 parameters are currently supported!");
-                    }
+                    return Ctr(parameters);
                 case InjectMechanism.Reflection:
                     return Info.Invoke(parameters);
                 default:

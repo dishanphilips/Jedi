@@ -25,20 +25,8 @@ namespace Jedi
         /// </summary>
         static Registry()
         {
-            Register(typeof(bool));
-            Register(typeof(byte));
-            Register(typeof(sbyte));
-            Register(typeof(char));
-            Register(typeof(decimal));
-            Register(typeof(double));
-            Register(typeof(float));
-            Register(typeof(int));
-            Register(typeof(uint));
-            Register(typeof(long));
-            Register(typeof(ulong));
-            Register(typeof(short));
-            Register(typeof(ushort));
             Register(typeof(string));
+            Register(typeof(DiContainer));
         }
 
         /// <summary>

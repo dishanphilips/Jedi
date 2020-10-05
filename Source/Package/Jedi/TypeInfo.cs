@@ -48,53 +48,62 @@ namespace Jedi
         /// <param name="type"></param>
         public TypeInfo(Type type)
         {
-            // Set the type
-            this.Type = type;
-
-            // Set if disposable
-            IsDisposable = this.Type.GetInterfaces().Contains(typeof(IDisposable));
-
-            // Set the constructor
-            if (Type.IsPrimitive == false)
+            try
             {
-                ConstructorInfo[] ctrs = this.Type.GetConstructors(BindingFlag);
-                Ctr = new JediCtrInfo(ctrs.FirstOrDefault(c => c.GetCustomAttribute<InjectAttribute>() != null) ??
-                                        ctrs.First());
+                // Set the type
+                Type = type;
+
+                // Set if disposable
+                IsDisposable = this.Type.GetInterfaces().Contains(typeof(IDisposable));
+
+                // Set the constructor
+                if (Type.IsPrimitive == false)
+                {
+                    ConstructorInfo[] ctrs = this.Type.GetConstructors(BindingFlag);
+                    Ctr = new JediCtrInfo(
+                        ctrs.FirstOrDefault(c => c.GetCustomAttribute<InjectAttribute>() != null) ?? 
+                        ctrs.First()
+                    );
+                }
+
+                // Loop through the type and all the base types
+                Type currentType = Type;
+                while (currentType != null)
+                {
+                    // Set the fields
+                    foreach (FieldInfo field in currentType.GetFields(BindingFlag))
+                    {
+                        if (field.GetCustomAttribute<InjectAttribute>() != null)
+                        {
+                            Fields.Add(new JediFieldInfo(field));
+                        }
+                    }
+
+                    // Set the properties
+                    foreach (PropertyInfo property in currentType.GetProperties(BindingFlag))
+                    {
+                        if (property.CanWrite && property.GetCustomAttribute<InjectAttribute>() != null)
+                        {
+                            Properties.Add(new JediPropertyInfo(property));
+                        }
+                    }
+
+                    // Set the methods
+                    foreach (MethodInfo method in currentType.GetMethods(BindingFlag))
+                    {
+                        if (method.GetCustomAttribute<InjectAttribute>() != null)
+                        {
+                            Methods.Add(new JediMethodInfo(method));
+                        }
+                    }
+
+                    // Move on to the base type
+                    currentType = currentType.BaseType;
+                }
             }
-            
-            // Loop through the type and all the base types
-            Type currentType = Type;
-            while (currentType != null)
+            catch (Exception)
             {
-                // Set the fields
-                foreach (FieldInfo field in currentType.GetFields(BindingFlag))
-                {
-                    if (field.GetCustomAttribute<InjectAttribute>() != null)
-                    {
-                        Fields.Add(new JediFieldInfo(field));
-                    }
-                }
-
-                // Set the properties
-                foreach (PropertyInfo property in currentType.GetProperties(BindingFlag))
-                {
-                    if ( property.CanWrite && property.GetCustomAttribute<InjectAttribute>() != null)
-                    {
-                        Properties.Add(new JediPropertyInfo(property));
-                    }
-                }
-
-                // Set the methods
-                foreach (MethodInfo method in currentType.GetMethods(BindingFlag))
-                {
-                    if (method.GetCustomAttribute<InjectAttribute>() != null)
-                    {
-                        Methods.Add(new JediMethodInfo(method));
-                    }
-                }
-
-                // Move on to the base type
-                currentType = currentType.BaseType;
+                throw;
             }
         }
     }
