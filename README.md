@@ -226,7 +226,7 @@ await container.ResolveAsync(typeof(Foo));
 ```
 
 # Benchmarks
-| Test (1 000 000) | Infuse | Zenject
+| Test (1 000 000) | Jedi | Zenject
 |--|--|--|
 | Resolves | 982 MS, 9829598 Ticks | 2463 MS, 24639955 Ticks
 | Injects - No Inheritance | 1613 MS, 16135145 Ticks | 5113 MS, 51137168 Ticks
