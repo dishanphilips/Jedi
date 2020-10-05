@@ -117,44 +117,8 @@ container.Resolve<Foo>().Id;
 // 12345
 container.Resolve<Foo>().Id;
 // 12345
-```
- 8. AsSingleAsync()
-```csharp
-class Foo
-{
-	public string Id = Guid.NewGuid().ToString();
-}
-
-// Foo instance is created asynchronously when bound.
-container.Bind<Foo>().AsSingleAsync();
-
-// Asynchronous resolve gives the same instance all the time
-container.Resolve<Foo>().Id;
-// 12345
-container.Resolve<Foo>().Id;
-// 12345
-container.Resolve<Foo>().Id;
-// 12345
-```
- 9. AsSingleLazy()
-```csharp
-class Foo
-{
-	public string Id = Guid.NewGuid().ToString();
-}
-
-// Foo instance created only when resolved
-container.Bind<Foo>().AsSingleLazy();
-
-// Asynchronous resolve gives the same instance all the time
-await container.ResolveAsync<Foo>().Id;
-// 12345
-await container.ResolveAsync<Foo>().Id;
-// 12345
-await container.ResolveAsync<Foo>().Id;
-// 12345
-```
- 10. FromMethod()
+``` 
+ 8. FromMethod()
 ```csharp
 public Foo GetFooInstance()
 {
@@ -164,7 +128,7 @@ public Foo GetFooInstance()
 // Method used to resolve foo instance
 container.Bind<Foo>().FromMethod(GetFooInstance);
 ```
- 11. FromMethodAsync()
+ 9. FromMethodAsync()
 ```csharp
 public async Task<Foo> GetFooInstanceAsync()
 {
@@ -174,7 +138,7 @@ public async Task<Foo> GetFooInstanceAsync()
 // Method used to resolve foo instance
 container.Bind<Foo>().FromMethodAsync(GetFooInstanceAsync);
 ```
- 12. OnInstantiated()
+ 10. OnInstantiated()
 ```csharp
 // Called when Foo is resolved
 public void OnFooInstantiated(Foo instance)
@@ -185,7 +149,7 @@ public void OnFooInstantiated(Foo instance)
 // Method used to resolve foo instance
 container.Bind<Foo>().OnInstantiated(OnFooInstantiated);
 ``` 
- 13. OnInstantiatedAsync()
+ 11. OnInstantiatedAsync()
 ```csharp
 // Called when Foo is resolved
 public Task OnFooInstantiatedAsync(Foo instance)
@@ -200,13 +164,20 @@ container.Bind<Foo>().OnInstantiatedAsync(OnFooInstantiatedAsync);
 ### Injection
 1. Inject()
 ```csharp
+// Option 1 - object
 container.Inject(injectable);
-```
-2. InjectAsync()
-```csharp
-await container.InjectAsync(injectable);
-```
 
+// Option 2 - IEnumeable<Object>
+container.Inject(injectables);
+```
+2. InjectAsync(object)
+```csharp
+// Option 1 - object
+await container.InjectAsync(injectable);
+
+// Option 2 - IEnumeable<Object>
+container.InjectAsync(injectables);
+```
 ### Resolve
 1. Resolve()
 ```csharp
