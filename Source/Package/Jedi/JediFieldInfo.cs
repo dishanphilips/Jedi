@@ -50,8 +50,11 @@ namespace Jedi
                 ParameterExpression valueParameter = Expression.Parameter(typeof(object));
 
                 // Create the property expression
-                MemberExpression fieldExpression = Expression.Field(Expression.Convert(
-                                                        targetParameter, Info.FieldType), Info);
+                MemberExpression fieldExpression = Expression.Field(
+                    Expression.Convert(targetParameter, Info.DeclaringType), 
+                    Info
+                );
+
                 // Create the lambda
                 SetAction = Expression.Lambda<Action<object, object>>(
                     Expression.Assign(fieldExpression, Expression.Convert(valueParameter, Info.FieldType)),
