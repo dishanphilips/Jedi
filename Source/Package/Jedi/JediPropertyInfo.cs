@@ -59,7 +59,8 @@ namespace Jedi
                 SetAction = Expression.Lambda<Action<object, object>>(
                     Expression.Assign(propertyExpression, Expression.Convert(valueParameter, Info.PropertyType)),
                     targetParameter,
-                    valueParameter).Compile();
+                    valueParameter
+                ).Compile();
             }
         }
 

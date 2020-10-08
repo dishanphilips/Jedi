@@ -14,5 +14,18 @@ namespace Jedi.Tests
             // DiContainer
             Assert.IsNotNull(Registry.GetTypeInfo(typeof(DiContainer)));
         }
+
+        [Test]
+        public void Register()
+        {
+            // Try to register
+            Assert.DoesNotThrow(() =>{
+                Registry.Register(typeof(TestData.PlayerProfileSystem));
+            });
+
+            // Ensure that it exists
+            TypeInfo playerProfileTypeInfo = Registry.GetTypeInfo(typeof(TestData.PlayerProfileSystem));
+            Assert.NotNull(playerProfileTypeInfo);
+        }
     }
 }

@@ -39,16 +39,17 @@ namespace Jedi
             if (Registry.InjectMechanism == InjectMechanism.Compiled)
             {
                 // Create the parameters required
-                ParameterExpression paramExpr = Expression.Parameter(typeof(object[]), "arguments");
+                ParameterExpression targetParameter = Expression.Parameter(typeof(object));
+                ParameterExpression argumentsParameter = Expression.Parameter(typeof(object[]));
 
                 // Create all the arguments and the conversions required
                 List<Expression> argExprs = new List<Expression>();
                 for (int parameterIndex = 0; parameterIndex < Parameters.Length; parameterIndex++)
                 {
-                    BinaryExpression indexedAcccess = Expression.ArrayIndex(paramExpr, Expression.Constant(parameterIndex));
+                    BinaryExpression indexedAcccess = Expression.ArrayIndex(argumentsParameter, Expression.Constant(parameterIndex));
                     if (Parameters[parameterIndex].IsClass == false && Parameters[parameterIndex].IsInterface == false)
                     {
-                        ParameterExpression localVariable = Expression.Variable(Parameters[parameterIndex], "localVariable");
+                        ParameterExpression localVariable = Expression.Variable(Parameters[parameterIndex]);
 
                         BlockExpression block = Expression.Block(new[] { localVariable },
                                 Expression.IfThenElse(Expression.Equal(indexedAcccess, Expression.Constant(null)),
@@ -70,20 +71,27 @@ namespace Jedi
                 // Throw an excpetion if the number of parameters is incorrect
                 ConditionalExpression argLenExpr =
                     Expression.IfThen(
-                        Expression.NotEqual(Expression.Property(paramExpr, typeof(object[]).GetProperty("Length")),
+                        Expression.NotEqual(Expression.Property(argumentsParameter, typeof(object[]).GetProperty("Length")),
                             Expression.Constant(Parameters.Length)),
                         Expression.Throw(Expression.New(typeof(ArgumentException).GetConstructor(new Type[] { typeof(string) }),
                             Expression.Constant("The length does not match parameters number")))
                     );
 
                 // Create the new statement
-                MethodCallExpression callExpr = Expression.Call(Info, argExprs);
+                MethodCallExpression callExpr = Expression.Call(
+                    Expression.Convert(targetParameter, Info.DeclaringType), 
+                    Info, 
+                    argExprs
+                );
 
                 // Create the final constructor
-                BlockExpression callExprWithArgs = Expression.Block(argLenExpr, Expression.Convert(callExpr, typeof(object)));
+                BlockExpression callExprWithArgs = Expression.Block(argLenExpr, Expression.Convert(callExpr, Info.ReturnType));
 
                 // Compile the constructor
-                Method = Expression.Lambda(callExprWithArgs, new[] { paramExpr }).Compile() as Action<object, object[]>;
+                Method = Expression.Lambda<Action<object, object[]>>(
+                    callExprWithArgs, 
+                    new[] { targetParameter, argumentsParameter }
+                ).Compile();
             }
         }
 
