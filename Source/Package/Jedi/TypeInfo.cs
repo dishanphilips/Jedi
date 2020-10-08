@@ -10,7 +10,9 @@ namespace Jedi
         /// <summary>
         /// A cached copy of binding flags
         /// </summary>
-        private static BindingFlags BindingFlag = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+        public static readonly BindingFlags BindingFlag =   BindingFlags.Public | 
+                                                            BindingFlags.NonPublic | 
+                                                            BindingFlags.Instance;
 
         /// <summary>
         /// The underlying type
