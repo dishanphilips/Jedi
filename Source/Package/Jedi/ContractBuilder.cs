@@ -90,12 +90,11 @@ namespace Jedi
         /// Chain the contract to a different contract
         /// The contract will be resolved from the Container
         /// </summary>
-        /// <param name="fromType"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Contract ResolveFrom(Type fromType, object id = null)
+        public Contract ResolveFrom(object id = null)
         {
-            return ResolveFrom(_container.GetContract(fromType, id));
+            return ResolveFrom(_container.GetContract(id));
         }
 
         /// <summary>
@@ -104,9 +103,9 @@ namespace Jedi
         /// <typeparam name="T"></typeparam>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Contract ResolveFrom<T>(object id = null)
+        public Contract ResolveFrom<T>()
         {
-            return ResolveFrom(typeof(T), id);
+            return ResolveFrom(typeof(T));
         }
 
         /// <summary>

@@ -131,10 +131,8 @@ namespace Jedi
             {
                 return id;
             }
-            else
-            {
-                return type;
-            }
+            
+            return type;
         }
 
         #endregion

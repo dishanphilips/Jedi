@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Jedi.Tests
 {
-    public class ResgistryTests
+    public class RegistryTests
     {
         
     }

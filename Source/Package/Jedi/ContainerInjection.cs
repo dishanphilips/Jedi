@@ -25,13 +25,13 @@ namespace Jedi
                 // Inject fields
                 foreach (JediFieldInfo field in typeInfo.Fields)
                 {
-                    field.Set(injectable, Resolve(field.Info.FieldType, field.Id));
+                    field.Set(injectable, Resolve(field.Id ?? field.Info.FieldType));
                 }
 
                 // Inject properties
                 foreach (JediPropertyInfo property in typeInfo.Properties)
                 {
-                    property.Set(injectable, Resolve(property.Info.PropertyType, property.Id));
+                    property.Set(injectable, Resolve(property.Id ?? property.Info.PropertyType));
                 }
 
                 // Inject methods
@@ -68,7 +68,7 @@ namespace Jedi
                 {
                     foreach (JediFieldInfo field in typeInfo.Fields)
                     {
-                        field.Set(injectable, Resolve(field.Info.FieldType, field.Id));
+                        field.Set(injectable, Resolve(field.Id ?? field.Info.FieldType));
                     }
                 }
             }            
@@ -81,7 +81,7 @@ namespace Jedi
                 {
                     foreach (JediPropertyInfo property in typeInfo.Properties)
                     {
-                        property.Set(injectable, Resolve(property.Info.PropertyType, property.Id));
+                        property.Set(injectable, Resolve(property.Id ?? property.Info.PropertyType));
                     }
                 }
             }           
@@ -126,7 +126,7 @@ namespace Jedi
             foreach (JediFieldInfo field in typeInfo.Fields)
             {
                 injectTasks.Add(Task.Run(async () => {
-                    field.Set(injectable, await ResolveAsync(field.Info.FieldType, field.Id));
+                    field.Set(injectable, await ResolveAsync(field.Id ?? field.Info.FieldType));
                 }));               
             }
 
@@ -134,7 +134,7 @@ namespace Jedi
             foreach (JediPropertyInfo property in typeInfo.Properties)
             {
                 injectTasks.Add(Task.Run(async () => {
-                    property.Set(injectable, await ResolveAsync(property.Info.PropertyType, property.Id));
+                    property.Set(injectable, await ResolveAsync(property.Id ?? property.Info.PropertyType));
                 }));
             }
 
@@ -178,7 +178,7 @@ namespace Jedi
                 foreach (JediFieldInfo field in typeInfo.Fields)
                 {
                     injectTasks.Add(Task.Run(async () => {
-                        field.Set(injectable, await ResolveAsync(field.Info.FieldType, field.Id));
+                        field.Set(injectable, await ResolveAsync(field.Id ?? field.Info.FieldType));
                     }));
                 }
 
@@ -186,7 +186,7 @@ namespace Jedi
                 foreach (JediPropertyInfo property in typeInfo.Properties)
                 {
                     injectTasks.Add(Task.Run(async () => {
-                        property.Set(injectable, await ResolveAsync(property.Info.PropertyType, property.Id));
+                        property.Set(injectable, await ResolveAsync(property.Id ?? property.Info.PropertyType));
                     }));
                 }
 

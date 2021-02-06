@@ -13,24 +13,22 @@ namespace Jedi
         /// Resolve an instance from the container and parent containers
         /// for a given type
         /// </summary>
-        /// <param name="type"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public object Resolve(Type type, object id = null)
+        public object Resolve(object id)
         {
-            return GetContract(type, id).GetInstance();
+            return GetContract(id).GetInstance();
         }
 
         /// <summary>
         /// Resolve a given instance in a container and parent containers
         /// asynchronously for a given type
         /// </summary>
-        /// <param name="type"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<object> ResolveAsync(Type type, object id = null)
+        public async Task<object> ResolveAsync(object id = null)
         {
-            return await GetContract(type, id).GetInstanceAsync();
+            return await GetContract(id).GetInstanceAsync();
         }
 
         /// <summary>
@@ -40,9 +38,9 @@ namespace Jedi
         /// <typeparam name="T"></typeparam>
         /// <param name="id"></param>
         /// <returns></returns>
-        public T Resolve<T>(object id = null)
+        public T Resolve<T>()
         {
-            return (T)Resolve(typeof(T), id);
+            return (T)Resolve(typeof(T));
         }
 
         /// <summary>
@@ -50,36 +48,32 @@ namespace Jedi
         /// asynchronously for a given T
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="type"></param>
-        /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<T> ResolveAsync<T>(Type type, object id = null)
+        public async Task<T> ResolveAsync<T>()
         {
-            return (T)await ResolveAsync(typeof(T), id);
+            return (T)await ResolveAsync(typeof(T));
         }
 
         /// <summary>
         /// Try to obtain an instance from the container and the parent containers
         /// if there is a contract for a given type
         /// </summary>
-        /// <param name="type"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public object TryResolve(Type type, object id = null)
+        public object TryResolve(object id = null)
         {
-            return TryGetContract(type, id)?.GetInstance();
+            return TryGetContract(id)?.GetInstance();
         }
 
         /// <summary>
         /// Try to obtain an instance asynchronously from the container and the parent containers
         /// if there is a contract for a given type
         /// </summary>
-        /// <param name="type"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<object> TryResolveAsync(Type type, object id = null)
+        public async Task<object> TryResolveAsync(object id)
         {
-            return await TryGetContract(type, id)?.GetInstanceAsync();
+            return await TryGetContract(id).GetInstanceAsync();
         }
 
         /// <summary>
@@ -87,11 +81,10 @@ namespace Jedi
         /// if there is a contract for a given T
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="id"></param>
         /// <returns></returns>
-        public object TryResolve<T>(object id = null)
+        public T TryResolve<T>()
         {
-            return TryResolve(typeof(T), id);
+            return (T)TryResolve(typeof(T));
         }
 
         /// <summary>
@@ -99,11 +92,10 @@ namespace Jedi
         /// if there is a contract for a given T
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<object> TryResolveAsync<T>(object id = null)
+        public async Task<T> TryResolveAsync<T>()
         {
-            return await TryResolveAsync(typeof(T), id);
+            return (T)await TryResolveAsync(typeof(T));
         }
 
         /// <summary>

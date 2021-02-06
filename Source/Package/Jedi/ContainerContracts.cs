@@ -14,16 +14,15 @@ namespace Jedi
         /// <param name="type"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        private Contract TryGetContractFromContainerAndParents(Type type, object id = null)
+        private Contract TryGetContractFromContainerAndParents(object id)
         {
             // Create the empty contract and contract id
             Contract contract = null;
-            object contractId = Contract.GetContractId(type, id);
-
+            
             // Check if the contract exists in the container
-            if (_contracts.ContainsKey(contractId))
+            if (_contracts.ContainsKey(id))
             {
-                contract = _contracts[contractId];
+                contract = _contracts[id];
             }
             else
             {
@@ -34,7 +33,7 @@ namespace Jedi
                     foreach (DiContainer parent in _parents)
                     {
                         // Try to get the contract fromthe parent
-                        contract = parent.TryGetContract(type, id);
+                        contract = parent.TryGetContract(id);
 
                         // The contract was found, we can stop looping and return that contract
                         if (contract != null)
@@ -51,12 +50,11 @@ namespace Jedi
         /// <summary>
         /// Try to obtain a contract
         /// </summary>
-        /// <param name="type"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Contract TryGetContract(Type type, object id = null)
+        public Contract TryGetContract(object id)
         {
-            return TryGetContractFromContainerAndParents(type, id);
+            return TryGetContractFromContainerAndParents(id);
         }
 
         /// <summary>
@@ -65,19 +63,17 @@ namespace Jedi
         /// <param name="type"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Contract GetContract(Type type, object id = null)
+        public Contract GetContract(object id)
         {
-            Contract contract = TryGetContract(type, id);
+            Contract contract = TryGetContract(id);
 
             // Check if the contract is not null
             if (contract == null)
             {
-                return contract;
+                throw new Exception($"Could not find a contract with the given id : {id}!");
             }
-            else
-            {
-                throw new Exception($"Could not find a contract with the given type : {type.AssemblyQualifiedName}!");
-            }
+            
+            return contract;
         }
 
         /// <summary>
@@ -86,19 +82,16 @@ namespace Jedi
         /// <param name="type"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        private IEnumerable<Contract> GetAllContractsFromContainerAndParents(Type type, object id = null)
+        private IEnumerable<Contract> GetAllContractsFromContainerAndParents(object id)
         {
-            // Create contract id
-            object contractId = Contract.GetContractId(type, id);
-
             // Check if the contract exists in the container
-            if (_contracts.ContainsKey(contractId))
+            if (_contracts.ContainsKey(id))
             {
-                yield return _contracts[contractId];
+                yield return _contracts[id];
             }
 
             // Check if the provided type is an interface
-            if (type.IsInterface)
+            if (id is Type {IsInterface: true} type)
             {
                 // Traverse the contracts that implement this interface
                 foreach (Contract contract in _contracts.Values)
@@ -117,7 +110,7 @@ namespace Jedi
                 foreach (DiContainer parent in _parents)
                 {
                     // Try to get the contract fromthe parent
-                    foreach (Contract contract in parent.GetAllContractsFromContainerAndParents(type, id))
+                    foreach (Contract contract in parent.GetAllContractsFromContainerAndParents(id))
                     {
                         yield return contract;
                     }
@@ -128,12 +121,11 @@ namespace Jedi
         /// <summary>
         /// Gat all matching contracts
         /// </summary>
-        /// <param name="type"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public IEnumerable<Contract> GetAllContracts(Type type, object id = null)
+        public IEnumerable<Contract> GetAllContracts(object id)
         {
-            return GetAllContractsFromContainerAndParents(type, id);
+            return GetAllContractsFromContainerAndParents(id);
         }
 
         /// <summary>
@@ -142,9 +134,9 @@ namespace Jedi
         /// <typeparam name="T"></typeparam>
         /// <param name="id"></param>
         /// <returns></returns>
-        public IEnumerable<Contract> GetAllContracts<T>(object id = null)
+        public IEnumerable<Contract> GetAllContracts<T>()
         {
-            return GetAllContracts(typeof(T), id);
+            return GetAllContracts(typeof(T));
         }
 
         #endregion

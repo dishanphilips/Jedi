@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\Package\**\*.*" Exclude="..\..\Package\Tests\*.*"/>
+    <Compile Include="..\..\Package\**\*.*" Exclude="..\..\Package\Tests\*.*" />
   </ItemGroup>
   
 </Project>
