@@ -195,12 +195,3 @@ await container.ResolveAsync<Foo>();
 // Option 2
 await container.ResolveAsync(typeof(Foo));
 ```
-
-# Benchmarks
-| Test (1 000 000) | Jedi | Zenject
-|--|--|--|
-| Resolves | 982 MS, 9829598 Ticks | 2463 MS, 24639955 Ticks
-| Injects - No Inheritance | 1613 MS, 16135145 Ticks | 5113 MS, 51137168 Ticks
-| Injects - With Inheritance | 1992 MS, 19922531 Ticks | 5061 MS, 50619097 Ticks
-| Inject Lock Contention | 0 MS | 514 MS	
-| Resolve Lock Contention | 0 MS | 0 MS
